@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Health Data Governance Manual</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 60px;
+            color: white;
+        }
+
+        header h1 {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            font-weight: 700;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        header p {
+            font-size: 1.2rem;
+            opacity: 0.95;
+            font-weight: 300;
+        }
+
+        .portal-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .portal-card {
+            background: white;
+            border-radius: 15px;
+            padding: 40px 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .portal-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+        }
+
+        .portal-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .portal-card.active {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.25);
+        }
+
+        .icon-container {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 25px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            color: white;
+        }
+
+        .portal-card h2 {
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+            color: #2d3748;
+        }
+
+        .portal-card p {
+            color: #718096;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .view-btn {
+            display: inline-block;
+            padding: 12px 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .view-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        /* Content Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 15px;
+            max-width: 900px;
+            width: 100%;
+            max-height: 85vh;
+            overflow-y: auto;
+            position: relative;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px 15px 0 0;
+            position: relative;
+        }
+
+        .modal-header h2 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .modal-header p {
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            font-size: 2rem;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .close-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: rotate(90deg);
+        }
+
+        .modal-body {
+            padding: 40px;
+        }
+
+        .modal-body h3 {
+            color: #2d3748;
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            margin-top: 30px;
+        }
+
+        .modal-body h3:first-child {
+            margin-top: 0;
+        }
+
+        .modal-body p {
+            color: #4a5568;
+            line-height: 1.8;
+            margin-bottom: 15px;
+        }
+
+        .modal-body ul {
+            margin-left: 20px;
+            margin-bottom: 20px;
+            color: #4a5568;
+            line-height: 1.8;
+        }
+
+        .modal-body li {
+            margin-bottom: 10px;
+        }
+
+        .section-divider {
+            height: 2px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            margin: 30px 0;
+            border: none;
+        }
+
+        footer {
+            text-align: center;
+            color: white;
+            margin-top: 60px;
+            padding: 20px;
+            opacity: 0.8;
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 2rem;
+            }
+
+            .portal-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .modal-content {
+                margin: 10px;
+            }
+
+            .modal-header {
+                padding: 20px;
+            }
+
+            .modal-body {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🏥 Health Data Governance Manual</h1>
+            <p>Your comprehensive guide to health data management and governance</p>
+        </header>
+
+        <div class="portal-grid">
+            <!-- DAP Card -->
+            <div class="portal-card" onclick="openModal('dap')">
+                <div class="icon-container">📊</div>
+                <h2>DAP</h2>
+                <p>Data Access Protocol - Guidelines and procedures for accessing health data securely and responsibly</p>
+                <button class="view-btn">View Manual</button>
+            </div>
+
+            <!-- PBHD Card -->
+            <div class="portal-card" onclick="openModal('pbhd')">
+                <div class="icon-container">🔒</div>
+                <h2>PBHD</h2>
+                <p>Personal Based Health Data - Framework for managing individual health information with privacy protection</p>
+                <button class="view-btn">View Manual</button>
+            </div>
+
+            <!-- Survey Mechanism Card -->
+            <div class="portal-card" onclick="openModal('survey')">
+                <div class="icon-container">📋</div>
+                <h2>Survey Mechanism</h2>
+                <p>Methodologies and best practices for conducting health surveys and data collection</p>
+                <button class="view-btn">View Manual</button>
+            </div>
+        </div>
+
+        <footer>
+            <p>&copy; 2024 Health Data Governance Portal. All rights reserved.</p>
+        </footer>
+    </div>
+
+    <!-- Modal for DAP -->
+    <div class="modal" id="modal-dap">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>📊 Data Access Protocol (DAP)</h2>
+                <p>Secure and Responsible Health Data Access Guidelines</p>
+                <button class="close-btn" onclick="closeModal('dap')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <h3>1. Introduction</h3>
+                <p>The Data Access Protocol (DAP) establishes comprehensive guidelines for accessing health data within our governance framework. This protocol ensures that all data access activities are conducted securely, ethically, and in compliance with relevant regulations.</p>
+
+                <hr class="section-divider">
+
+                <h3>2. Access Levels</h3>
+                <ul>
+                    <li><strong>Level 1 - Public Data:</strong> Aggregated, anonymized statistics available to all authorized personnel</li>
+                    <li><strong>Level 2 - Research Data:</strong> De-identified datasets for approved research projects</li>
+                    <li><strong>Level 3 - Clinical Data:</strong> Patient-level data requiring explicit authorization and ethics approval</li>
+                    <li><strong>Level 4 - Sensitive Data:</strong> Highly restricted access with multi-level approval process</li>
+                </ul>
+
+                <hr class="section-divider">
+
+                <h3>3. Application Process</h3>
+                <p>All data access requests must follow these steps:</p>
+                <ul>
+                    <li>Submit formal application through the designated portal</li>
+                    <li>Provide detailed research proposal or business justification</li>
+                    <li>Complete data security training certification</li>
+                    <li>Sign data use agreement and confidentiality contract</li>
+                    <li>Await review and approval from the Data Governance Committee</li>
+                </ul>
+
+                <hr class="section-divider">
+
+                <h3>4. Security Requirements</h3>
+                <p>Data recipients must maintain:</p>
+                <ul>
+                    <li>Encrypted storage and transmission protocols</li>
+                    <li>Access logging and audit trails</li>
+                    <li>Regular security assessments</li>
+                    <li>Incident response procedures</li>
+                    <li>Data destruction upon project completion</li>
+                </ul>
+
+                <hr class="section-divider">
+
+                <h3>5. Compliance & Monitoring</h3>
+                <p>All data access is subject to ongoing monitoring and periodic audits to ensure continued compliance with this protocol. Violations may result in access revocation and appropriate disciplinary actions.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for PBHD -->
+    <div class="modal" id="modal-pbhd">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>🔒 Personal Based Health Data (PBHD)</h2>
+                <p>Individual Health Information Management Framework</p>
+                <button class="close-btn" onclick="closeModal('pbhd')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <h3>1. Overview</h3>
+                <p>The Personal Based Health Data (PBHD) framework provides comprehensive guidelines for collecting, storing, processing, and sharing individual health information while maintaining the highest standards of privacy and data protection.</p>
+
+                <hr class="section-divider">
+
+                <h3>2. Core Principles</h3>
+                <ul>
+                    <li><strong>Informed Consent:</strong> Explicit consent required for all personal health data collection and usage</li>
+                    <li><strong>Purpose Limitation:</strong> Data used only for specified, legitimate purposes</li>
+                    <li><strong>Data Minimization:</strong> Collect only necessary information</li>
+                    <li><strong>Accuracy:</strong> Maintain up-to-date and accurate records</li>
+                    <li><strong>Storage Limitation:</strong> Retain data only as long as necessary</li>
+                    <li><strong>Integrity & Confidentiality:</strong> Implement appropriate security measures</li>
+                </ul>
+
+                <hr class="section-divider">
+
+                <h3>3. Individual Rights</h3>
+                <p>Data subjects have the following rights regarding their personal health information:</p>
+                <ul>
+                    <li>Right to access their personal health data</li>
+                    <li>Right to rectification of inaccurate information</li>
+                    <li>Right to erasure (where applicable)</li>
+                    <li>Right to restrict processing</li>
+                    <li>Right to data portability</li>
+                    <li>Right to object to processing</li>
+                    <li>Right not to be subject to automated decision-making</li>
+                </ul>
+
+                <hr class="section-divider">
+
+                <h3>4. Data Protection Measures</h3>
+                <ul>
+                    <li><strong>Encryption:</strong> All personal health data encrypted at rest and in transit</li>
+                    <li><strong>Access Control:</strong> Role-based access with multi-factor authentication</li>
+                    <li><strong>Anonymization:</strong> De-identification techniques for research purposes</li>
+                    <li><strong>Audit Trails:</strong> Complete logging of all data access and modifications</li>
+                    <li><strong>Breach Notification:</strong> Prompt notification in case of data breaches</li>
+                </ul>
+
+                <hr class="section-divider">
+
+                <h3>5. Special Categories</h3>
+                <p>Additional protections apply to sensitive health data including:</p>
+                <ul>
+                    <li>Mental health records</li>
+                    <li>Genetic information</li>
+                    <li>HIV/AIDS status</li>
+                    <li>Substance abuse treatment records</li>
+                    <li>Reproductive health information</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Survey Mechanism -->
+    <div class="modal" id="modal-survey">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>📋 Survey Mechanism</h2>
+                <p>Health Survey Methodologies and Best Practices</p>
+                <button class="close-btn" onclick="closeModal('survey')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <h3>1. Introduction</h3>
+                <p>The Survey Mechanism manual outlines standardized methodologies for designing, implementing, and analyzing health surveys to ensure data quality, reliability, and ethical compliance throughout the data collection process.</p>
+
+                <hr class="section-divider">
+
+                <h3>2. Survey Design Principles</h3>
+                <ul>
+                    <li><strong>Clear Objectives:</strong> Define specific, measurable research questions</li>
+                    <li><strong>Target Population:</strong> Clearly identify and define the study population</li>
+                    <li><strong>Sampling Strategy:</strong> Select appropriate sampling methods (random, stratified, cluster)</li>
+                    <li><strong>Questionnaire Design:</strong> Create clear, unbiased, and culturally appropriate questions</li>
+                    <li><strong>Pilot Testing:</strong> Conduct preliminary testing to identify issues</li>
+                </ul>
+
+                <hr class="section-divider">
+
+                <h3>3. Data Collection Methods</h3>
+                <ul>
+                    <li><strong>Face-to-Face Interviews:</strong> In-person data collection with trained enumerators</li>
+                    <li><strong>Telephone Surveys:</strong> Remote data collection via phone interviews</li>
+                    <li><strong>Online Surveys:</strong> Web-based questionnaires for digital populations</li>
+                    <li><strong>Self-Administered:</strong> Paper or digital forms completed by respondents</li>
+                    <li><strong>Mixed Methods:</strong> Combination of approaches for comprehensive data</li>
+                </ul>
+
+                <hr class="section-divider">
+
+                <h3>4. Quality Assurance</h3>
+                <p>Implement rigorous quality control measures:</p>
+                <ul>
+                    <li>Enumerator training and certification programs</li>
+                    <li>Real-time data validation checks</li>
+                    <li>Supervisor field monitoring (10-15% of interviews)</li>
+                    <li>Back-checks and re-interviews for verification</li>
+                    <li>Data cleaning and consistency checks</li>
+                    <li>Documentation of all procedures and decisions</li>
+                </ul>
+
+                <hr class="section-divider">
+
+                <h3>5. Ethical Considerations</h3>
+                <ul>
+                    <li>Obtain informed consent from all participants</li>
+                    <li>Ensure voluntary participation with right to withdraw</li>
+                    <li>Maintain confidentiality and anonymity</li>
+                    <li>Minimize respondent burden and discomfort</li>
+                    <li>Provide appropriate referrals for sensitive topics</li>
+                    <li>Secure ethics committee approval before commencement</li>
+                </ul>
+
+                <hr class="section-divider">
+
+                <h3>6. Data Analysis & Reporting</h3>
+                <p>Standard procedures for processing survey data:</p>
+                <ul>
+                    <li>Statistical weighting and adjustment for sampling design</li>
+                    <li>Descriptive and inferential statistical analysis</li>
+                    <li>Transparent reporting of methodology and limitations</li>
+                    <li>Data visualization and presentation best practices</li>
+                    <li>Archiving and documentation for future reference</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function openModal(type) {
+            const modal = document.getElementById(`modal-${type}`);
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal(type) {
+            const modal = document.getElementById(`modal-${type}`);
+            modal.classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.classList.remove('active');
+                document.body.style.overflow = 'auto';
+            }
+        }
+
+        // Close modal with Escape key
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                const modals = document.querySelectorAll('.modal');
+                modals.forEach(modal => {
+                    modal.classList.remove('active');
+                });
+                document.body.style.overflow = 'auto';
+            }
+        });
+    </script>
+</body>
+</html>
